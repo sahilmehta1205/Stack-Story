@@ -13,8 +13,9 @@ st.title("📚 Chat with your PDF (LangChain + Chroma)")
 st.write("Upload a PDF and ask questions about its content using a lightweight open LLM.")
 
 # 🔹 Set Hugging Face token (add in Streamlit Cloud secrets)
-if "HUGGINGFACEHUB_API_TOKEN" not in os.environ:
-    st.warning("⚠️ Please set your Hugging Face API token in Streamlit Cloud Secrets.")
+if "HUGGINGFACEHUB_API_TOKEN" not in os.environ or not os.environ["HUGGINGFACEHUB_API_TOKEN"]:
+    st.error("❌ Missing Hugging Face API token. Please set it in Streamlit Cloud → Settings → Secrets.")
+    st.stop()
 else:
     os.environ["HUGGINGFACEHUB_API_TOKEN"] = os.environ["HUGGINGFACEHUB_API_TOKEN"]
 
@@ -41,13 +42,12 @@ if uploaded_file:
 
     # Load a small, fast model from Hugging Face Hub
     llm = HuggingFaceHub(
-        repo_id="google/flan-t5-base",
-        model_kwargs={
-            "task": "text2text-generation",   # ✅ explicit task
-            "temperature": 0,
-            "max_length": 256
-        }
-    )
+    repo_id="google/flan-t5-base",
+    task="text2text-generation",  # ✅ Required
+    model_kwargs={
+        "temperature": 0,
+        "max_length": 256
+    })
 
     qa = RetrievalQA.from_chain_type(llm=llm, retriever=retriever)
 
@@ -59,4 +59,5 @@ if uploaded_file:
             response = qa.run(query)
         st.success("✅ Answer:")
         st.write(response)
+
 
