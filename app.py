@@ -42,7 +42,11 @@ if uploaded_file:
     # Load a small, fast model from Hugging Face Hub
     llm = HuggingFaceHub(
         repo_id="google/flan-t5-base",
-        model_kwargs={"temperature": 0, "max_length": 256}
+        model_kwargs={
+            "task": "text2text-generation",   # ✅ explicit task
+            "temperature": 0,
+            "max_length": 256
+        }
     )
 
     qa = RetrievalQA.from_chain_type(llm=llm, retriever=retriever)
@@ -55,3 +59,4 @@ if uploaded_file:
             response = qa.run(query)
         st.success("✅ Answer:")
         st.write(response)
+
